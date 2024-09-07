@@ -66,8 +66,13 @@ class DefaultToolUtils(ToolUtils):
             param_text = ""
             for name, param in tool["parameters"]["properties"].items():
                 required, enum, items = "", "", ""
-                if name in tool["parameters"].get("required", []):
-                    required = ", required"
+                if "required" in tool["parameters"]:
+                    required_field = tool["parameters"]["required"]
+                    if (
+                        (isinstance(required_field, bool) and required_field)
+                        or (isinstance(required_field, list) and name in required_field)
+                    ):
+                        required = ", required"
 
                 if param.get("enum", None):
                     enum = ", should be one of [{}]".format(", ".join(param["enum"]))
