@@ -40,6 +40,23 @@ GLM4_TOOL_PROMPT = (
     "你的任务是针对用户的问题和要求提供适当的答复和支持。# 可用工具{tool_text}"
 )
 
+HERMES_TOOL_PROMPT = """
+
+
+# Tools
+
+You may call one or more functions to assist with the user query.
+
+You are provided with function signatures within <tools></tools> XML tags:
+<tools>
+{desc}
+</tools>
+
+For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:
+<tool_call>
+{{"name": <function-name>, "arguments": <args-json-object>}}
+</tool_call>"""
+
 
 FunctionCall = namedtuple("FunctionCall", ["name", "arguments"])
 
@@ -168,9 +185,35 @@ class GLM4ToolUtils(ToolUtils):
         return [(tool_name, json.dumps(arguments, ensure_ascii=False))]
 
 
+class HermesToolUtils(ToolUtils):
+    @override
+    @staticmethod
+    def get_function_slots() -> SLOTS:
+        return ["""<tool_call>
+{"name": "{{name}}", "arguments": {{arguments}}}
+</tool_call>"""]
+
+    @override
+    @staticmethod
+    def tool_formatter(tools: List[Dict[str, Any]]) -> str:
+        from langchain_core.utils.function_calling import convert_to_openai_tool
+        return HERMES_TOOL_PROMPT.format(
+            desc='\n'.join([json.dumps(
+                convert_to_openai_tool(tool),
+                ensure_ascii=False,
+            ) for tool in tools])
+        )
+
+    @override
+    @staticmethod
+    def tool_extractor(content: str) -> Union[str, List["FunctionCall"]]:
+        raise NotImplementedError()
+
+
 TOOLS = {
     "default": DefaultToolUtils(),
     "glm4": GLM4ToolUtils(),
+    "hermes": HermesToolUtils(),
 }
 
 
