@@ -1259,6 +1259,17 @@ register_model_group(
 
 register_model_group(
     models={
+        "Hy3-Preview": {
+            DownloadSource.DEFAULT: "tencent/Hy3-preview",
+            DownloadSource.MODELSCOPE: "tencent/Hy3-preview",
+        },
+    },
+    template="hy3",
+)
+
+
+register_model_group(
+    models={
         "Index-1.9B-Base": {
             DownloadSource.DEFAULT: "IndexTeam/Index-1.9B",
             DownloadSource.MODELSCOPE: "IndexTeam/Index-1.9B",
