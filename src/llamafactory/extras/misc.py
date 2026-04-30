@@ -96,8 +96,8 @@ def check_dependencies() -> None:
     r"""Check the version of the required packages."""
     check_version("transformers>=4.55.0,<=5.6.0")
     check_version("datasets>=2.16.0,<=4.0.0")
-    check_version("accelerate>=1.3.0,<=1.11.0")
-    check_version("peft>=0.18.0,<=0.18.1")
+    check_version("accelerate>=1.3.0,<=1.15.0")
+    check_version("peft>=0.18.0,<=0.20.0")
     check_version("trl>=0.18.0,<=0.24.0")
 
 

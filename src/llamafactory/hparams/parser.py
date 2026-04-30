@@ -186,13 +186,16 @@ def _verify_model_args(
             raise ValueError("Quantized model only accepts a single adapter. Merge them first.")
 
 
+
 def _check_extra_dependencies(
     model_args: "ModelArguments",
     finetuning_args: "FinetuningArguments",
     training_args: Optional["TrainingArguments"] = None,
 ) -> None:
     if model_args.use_kt:
-        check_version("ktransformers", mandatory=True)
+        check_version("kt-kernel", mandatory=True)
+        check_version("transformers-kt", mandatory=True)
+        check_version("accelerate-kt", mandatory=True)
 
     if model_args.use_unsloth:
         check_version("unsloth", mandatory=True)
@@ -509,6 +512,9 @@ def get_train_args(args: dict[str, Any] | list[str] | None = None) -> _TRAIN_CLS
         f"compute dtype: {str(model_args.compute_dtype)}"
     )
     transformers.set_seed(training_args.seed)
+
+    if model_args.use_kt:
+        model_args.apply_kt_config(finetuning_args, training_args, model_args.model_max_length)
 
     return model_args, data_args, training_args, finetuning_args, generating_args
 
