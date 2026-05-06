@@ -212,17 +212,18 @@ def patch_accelerator_for_fp8() -> None:
     original_init = Accelerator.__init__
 
     def patched_init(self, *args, **kwargs):
-        if "kwargs_handlers" not in kwargs or not kwargs["kwargs_handlers"]:
-            if use_te_recipe:
-                kwargs["kwargs_handlers"] = [
-                    FP8Recipe(fp8_format="HYBRID", amax_history_len=16, amax_compute_algo="max")
-                ]
-            else:
-                kwargs["kwargs_handlers"] = [
-                    FP8Recipe(backend="TE", fp8_format="HYBRID", amax_history_len=16, amax_compute_algo="max")
-                ]
-            # Only force mixed_precision when we inject handlers
-            kwargs["mixed_precision"] = "fp8"
+        if "kwargs_handlers" not in kwargs:
+            kwargs["kwargs_handlers"] = []
+        if use_te_recipe:
+            kwargs["kwargs_handlers"].append(
+                FP8Recipe(fp8_format="HYBRID", amax_history_len=16, amax_compute_algo="max")
+            )
+        else:
+            kwargs["kwargs_handlers"].append(
+                FP8Recipe(backend="TE", fp8_format="HYBRID", amax_history_len=16, amax_compute_algo="max")
+            )
+        # Only force mixed_precision when we inject handlers
+        kwargs["mixed_precision"] = "fp8"
         return original_init(self, *args, **kwargs)
 
     Accelerator.__init__ = patched_init
